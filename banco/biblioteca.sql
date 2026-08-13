@@ -1,10 +1,15 @@
+-- ============== TABELAS ================
+-- tabela livros
 create table livros(
  id_livro integer auto_increment primary key,
+ id_autor int not null,
  titulo text not null,
- autor text not null,
- ano integer
+ ano integer,
+
+ foreign key (id_autor) references autores(id_autor)
  );
  
+-- tabela alunos
 create table alunos(
  id_aluno int auto_increment primary key,
  nome text not null,
@@ -12,18 +17,14 @@ create table alunos(
  curso text not null
  );
  
-INSERT INTO livros(titulo,autor,ano)
- values('Harry Potter', 'J.K Rowling',1997);
- 
-INSERT INTO livros(titulo,autor,ano)
- values('Dom Casmurro', 'Machado de Assis',1899);
- 
-INSERT INTO livros(titulo,autor,ano)
- values('1984', 'George Orwell',1949);
- 
- INSERT INTO livros(titulo,autor,ano)
- values('O Hobbit', 'J.R.R. Tolkien',1937);
- 
+-- tabela autores
+create table autores(
+id_autor int auto_increment primary key,
+nome text not null,
+nacionalidade text
+);
+
+-- tabela emprestimos
 create table emprestimos(
 id_emprestimo int auto_increment primary key,
 id_aluno int not null,
@@ -35,6 +36,21 @@ foreign key (id_aluno) references alunos(id_aluno),
 foreign key (id_livro) references livros(id_livro)
 );
 
+-- ============== INSERTS ================
+-- adiciona a livros 
+INSERT INTO livros(titulo,id_autor,ano)
+ values('Harry Potter', 4,1997);
+ 
+INSERT INTO livros(titulo,id_autor,ano)
+ values('Dom Casmurro', 3,1899);
+ 
+INSERT INTO livros(titulo,id_autor,ano)
+ values('1984', 2,1949);
+ 
+ INSERT INTO livros(titulo,id_autor,ano)
+ values('O Hobbit', 1,1937);
+
+-- isere a emprestimos
 insert into emprestimos(id_aluno,id_livro,data_emprestimo) values
 (1,1,'22/06'),
 (2,2,'12/09'),
@@ -42,6 +58,15 @@ insert into emprestimos(id_aluno,id_livro,data_emprestimo) values
 (4,1,'11/04'),
 (1,4,'01/03');
 
+-- insere a autores
+insert into autores(nome,nacionalidade) values
+('J.R.R Tolkien','Britânico'),
+('George Orwell','Britânico'),
+('Machado de Assis','Brasileiro'),
+('J.K. Rowling','Britânica');
+
+-- ============== EXIBICOES ================
+-- exibe nome/titulo/dataEmprestimo
 select
 alunos.nome,
 livros.titulo,
@@ -52,6 +77,7 @@ on emprestimos.id_aluno = alunos.id_aluno
 inner join livros
 on emprestimos.id_livro = livros.id_livro;
 
+-- exibe nome/titulo/dataEmprestimo/dataDevolucao
 select
 alunos.nome,
 livros.titulo,
@@ -63,3 +89,25 @@ on emprestimos.id_aluno = alunos.id_aluno
 inner join livros
 on emprestimos.id_livro = livros.id_livro
 order by data_emprestimo desc;
+
+-- exibe aluno/titulo/autor/dataEmprestimo
+select
+alunos.nome as aluno,
+livros.titulo as livro,
+autores.nome as autor,
+emprestimos.data_emprestimo as dataEmprestimo
+from emprestimos
+inner join alunos
+on emprestimos.id_aluno = alunos.id_aluno
+inner join livros
+on emprestimos.id_livro = livros.id_livro
+inner join autores
+on livros.id_autor = autores.id_autor;
+
+-- exibe livros/autores
+select
+livros.titulo as Titulo,
+autores.nome as Autor
+from livros
+inner join autores
+on livros.id_autor = autores.id_autor;
