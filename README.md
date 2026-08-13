@@ -42,5 +42,5 @@ O banco de dados é composto por 4 tabelas centrais que interagem de forma relac
 
 ## ✒️ Autor
 
-* **Iury Nicolau** - *Estudante de Analise e Dedenvolvimento de Sistemas* - [Seu GitHub](https://github.com/IuryNi)
+* **Iury Nicolau** - *Estudante de Analise e Dedenvolvimento de Sistemas* - [Meu Github](https://github.com/IuryNi)
 
