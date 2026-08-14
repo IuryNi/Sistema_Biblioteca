@@ -138,6 +138,5 @@ select max(ano) from livros;
 -- exibe o valor min de ano
 select min(ano) from livros;
 
-
 -- exibe a media das idades
 select avg(idade) from alunos;
