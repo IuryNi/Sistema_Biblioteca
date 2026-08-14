@@ -111,3 +111,33 @@ autores.nome as Autor
 from livros
 inner join autores
 on livros.id_autor = autores.id_autor;
+
+-- exibe quantidade de elementos em livros
+select count(*) from livros;
+
+-- exibe a quantidade de livros por autores
+select 
+autores.nome as autor,
+count(*) as quantidade_livros
+from autores
+group by autores.nome;
+
+-- mesma coisa que a anterior com filtro
+SELECT
+    autores.nome AS autor,
+    COUNT(livros.id_livro) AS quantidade_livros
+FROM autores
+INNER JOIN livros
+    ON autores.id_autor = livros.id_autor
+GROUP BY autores.id_autor
+HAVING COUNT(livros.id_livro) > 1;
+
+-- exibe o maior valor de ano
+select max(ano) from livros;
+
+-- exibe o valor min de ano
+select min(ano) from livros;
+
+
+-- exibe a media das idades
+select avg(idade) from alunos;
