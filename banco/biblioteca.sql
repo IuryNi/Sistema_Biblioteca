@@ -140,3 +140,11 @@ select min(ano) from livros;
 
 -- exibe a media das idades
 select avg(idade) from alunos;
+
+-- exibe livros/autores
+select
+livros.titulo as Titulo,
+autores.nome as Autor
+from livros
+inner join autores
+on livros.id_autor = autores.id_autor;
