@@ -1,60 +1,162 @@
-# 📚 Sistema de Banco de Dados para Biblioteca
+# Sistema de Biblioteca
 
-Este repositório armazena o projeto de banco de dados relacional para gerenciamento de uma biblioteca. O projeto foi desenvolvido com fins estritamente acadêmicos, servindo como ambiente prático para o treinamento e consolidação de conceitos essenciais do ecossistema **MySQL**.
+## 📝 Descrição
+Este projeto consiste em um sistema de banco de dados relacional para gerenciamento de uma biblioteca acadêmica. Ele permite o controle completo de autores, acervo de livros, cadastro de usuários universitários e o histórico de empréstimos realizados de forma integrada.
 
----
+## 🛠️ Tecnologias
+* **SQL** (Linguagem de Consulta Estruturada)
+* **MySQL / MariaDB** (Sistema Gerenciador de Banco de Dados)
 
-## 🎯 Conceitos Aprendidos e Praticados
+## 🗄️ Banco de Dados
 
-O desenvolvimento deste script permitiu a aplicação prática de diversas regras fundamentais de engenharia de dados:
+### Estrutura das Tabelas (DDL)
+```sql
+CREATE TABLE autores(
+    id_autor INT AUTO_INCREMENT PRIMARY KEY,
+    nome TEXT NOT NULL,
+    nacionalidade TEXT NOT NULL
+);
 
-* **Ciclo de Dependência de Tabelas (DDL):** Compreensão da ordem lógica de criação de tabelas. Tabelas que possuem dependências de chaves estrangeiras (tabelas filhas) só podem ser geradas após a existência de suas tabelas de origem (tabelas pai).
-* **Integridade Referencial:** Aplicação de restrições através de `FOREIGN KEY` para garantir que empréstimos e livros apontem apenas para registros válidos e existentes de alunos e autores.
-* **Resolução de Relacionamentos Muitos-para-Muitos (N:M):** Modelagem de uma tabela associativa (`emprestimos`) para conectar as entidades `alunos` e `livros`, permitindo o histórico completo de transações.
-* **Junções Avançadas de Dados (DQL):** Criação de consultas com múltiplos `INNER JOIN` simultâneos, unificando até quatro tabelas distintas (`alunos`, `livros`, `autores` e `emprestimos`) em um único relatório legível.
-* **Funções de Agregação e Métricas:** Implementação de funções nativas para análise de dados estatísticos, como contagens (`COUNT`), médias (`AVG`), além de valores máximos (`MAX`) e mínimos (`MIN`).
-* **Agrupamento e Filtragem Avançada:** Uso de comandos de agrupamento (`GROUP BY`) combinados com filtros pós-agregação (`HAVING`) para segmentar relatórios de forma inteligente.
+CREATE TABLE livros(
+    id_livro INT AUTO_INCREMENT PRIMARY KEY,
+    titulo TEXT NOT NULL,
+    id_autor INT NOT NULL,
+    FOREIGN KEY (id_autor) REFERENCES autores(id_autor)
+);
 
----
+CREATE TABLE usuarios(
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nome TEXT NOT NULL,
+    idade TEXT NOT NULL,
+    curso TEXT NOT NULL
+);
 
-## 🏗️ Estrutura e Arquitetura do Banco
+CREATE TABLE emprestimos(
+    id_emprestimo INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_livro INT NOT NULL,
+    data_emprestimo TEXT NOT NULL,
+    data_devolucao TEXT NOT NULL,
+    FOREIGN KEY (id_livro) REFERENCES livros(id_livro),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+```
 
-O banco de dados é composto por 4 tabelas centrais que interagem de forma relacional:
+### População do Banco (DML)
+O banco já vem pré-populado com:
+* **5** Autores renomados
+* **15** Livros clássicos da literatura nacional e internacional
+* **10** Usuários de cursos como ADS, SI e Gestão
+* **19** Registros de empréstimos para testes de relatórios
 
-1. **`autores`** (Tabela Pai)
-   * Armazena o cadastro básico e a nacionalidade dos escritores.
-2. **`livros`** (Tabela Filha de `autores`)
-   * Contém as obras literárias e possui dependência direta da tabela de autores.
-3. **`alunos`** (Tabela Pai)
-   * Armazena os dados dos estudantes habilitados a realizar retiradas, como curso e idade.
-4. **`emprestimos`** (Tabela Associativa / Filha de `alunos` e `livros`)
-   * Entidade central do sistema que registra qual aluno pegou qual livro, além de armazenar o controle de datas de retirada e devolução.
+## ⚙️ Funcionalidades
+* Cadastro de escritores com controle de nacionalidade.
+* Vinculação estrita de livros a autores existentes.
+* Categorização de usuários por curso e faixa etária.
+* Registro de empréstimos com datas de retirada e devolução.
+* Rastreamento completo de movimentação do acervo.
 
----
+## 📊 Consultas SQL (Relatórios)
 
-## 📊 Consultas Práticas Praticadas (DQL)
+### 1. Listar todos os livros
+```sql
+SELECT * FROM livros;
+```
 
-O script inclui relatórios prontos para execução que cobrem diferentes cenários de negócios:
+### 2. Listar todos os usuários
+```sql
+SELECT * FROM usuarios;
+```
 
-* **Histórico de Empréstimos:** Cruzamento de dados para exibir quem pegou qual livro, incluindo datas de retirada, devolução e ordenação cronológica decrescente.
-* **Relação Livro x Autor:** Relatório simplificado mapeando os títulos literários diretamente aos seus respectivos criadores.
-* **Painel Estatístico do Acervo:**
-  * Contagem total de livros catalogados.
-  * Quantidade de livros publicados por cada autor.
-  * Filtragem de autores que possuem mais de um livro cadastrado (`HAVING COUNT > 1`).
-  * Identificação do livro mais recente (`MAX`) e do mais antigo (`MIN`) com base no ano de publicação.
-* **Métricas do Usuário:** Cálculo da média de idade (`AVG`) dos alunos cadastrados na base.
+### 3. Listar livros e seus respectivos autores
+```sql
+SELECT
+    livros.titulo AS titulo,
+    autores.nome AS autor
+FROM livros
+INNER JOIN autores ON livros.id_autor = autores.id_autor;
+```
 
----
+### 4. Quantidade de livros cadastrados por autor
+```sql
+SELECT
+    autores.nome AS autor,
+    COUNT(livros.id_autor) AS quantidade_livros
+FROM livros
+INNER JOIN autores ON livros.id_autor = autores.id_autor
+GROUP BY livros.id_autor;
+```
 
-## 🚀 Como Executar o Projeto
+### 5. Filtrar autores com 2 ou mais livros no acervo
+```sql
+SELECT
+    autores.nome AS autor,
+    COUNT(livros.id_autor) AS quantidade_livros
+FROM livros
+INNER JOIN autores ON livros.id_autor = autores.id_autor
+GROUP BY livros.id_autor
+HAVING COUNT(livros.id_autor) >= 2;
+```
 
-1. Certifique-se de ter o **MySQL Server** instalado e rodando em sua máquina.
-2. Utilize uma ferramenta cliente de sua preferência (MySQL Workbench, DBeaver, phpMyAdmin ou terminal).
-3. Abra e execute o arquivo de script SQL presente neste repositório para criar a estrutura, povoar os dados de teste e rodar os relatórios analíticos demonstrativos.
+### 6. Listar usuários que já fizeram empréstimos e a quantidade total
+```sql
+SELECT
+    usuarios.nome AS nome,
+    COUNT(emprestimos.id_usuario) AS quantidade
+FROM usuarios
+INNER JOIN emprestimos ON usuarios.id_usuario = emprestimos.id_usuario
+GROUP BY emprestimos.id_usuario
+HAVING COUNT(emprestimos.id_usuario) >= 1;
+```
 
----
+### 7. Identificar o usuário que mais realizou empréstimos
+```sql
+SELECT
+    usuarios.nome AS nome,
+    COUNT(emprestimos.id_usuario) AS quantidade
+FROM usuarios
+INNER JOIN emprestimos ON usuarios.id_usuario = emprestimos.id_usuario
+GROUP BY emprestimos.id_usuario
+ORDER BY COUNT(emprestimos.id_usuario) DESC
+LIMIT 1;
+```
+
+### 8. Relatório completo de empréstimos (Auditoria)
+```sql
+SELECT
+    usuarios.nome AS nome,
+    livros.titulo AS titulo,
+    autores.nome AS autor,
+    emprestimos.data_emprestimo AS data_emprestimo,
+    emprestimos.data_devolucao AS data_devolucao
+FROM emprestimos
+INNER JOIN usuarios ON emprestimos.id_usuario = usuarios.id_usuario
+INNER JOIN livros ON emprestimos.id_livro = livros.id_livro
+INNER JOIN autores ON livros.id_autor = autores.id_autor
+ORDER BY usuarios.nome ASC;
+```
+
+### 9. Quantidade de vezes que cada livro foi emprestado
+```sql
+SELECT 
+    livros.titulo AS titulo,
+    COUNT(emprestimos.id_livro) AS quantidade_emprestada
+FROM livros
+INNER JOIN emprestimos ON livros.id_livro = emprestimos.id_livro
+GROUP BY emprestimos.id_livro;
+```
+
+## 🚀 Como executar
+
+1. Instale um gerenciador de banco de dados (ex: MySQL Workbench, DBeaver ou phpMyAdmin).
+2. Crie um novo banco de dados em seu servidor:
+   ```sql
+   CREATE DATABASE sistema_biblioteca;
+   USE sistema_biblioteca;
+   ```
+3. Copie o código da seção **Estrutura das Tabelas** e execute-o para criar o esquema.
+4. Execute os comandos de inserção (`INSERT INTO`) fornecidos no arquivo de dados para popular o banco.
+5. Rode qualquer uma das **Consultas SQL** listadas acima para gerar os relatórios em tempo real.
 
 ## ✒️ Autor
-
-* **Iury Nicolau** - *Estudante de Análise e Desenvolvimento de Sistemas* - [Seu GitHub](https://github.com)
+* **Iury Nicolau** - [Meu GitHub](https://github.com/IuryNi)
