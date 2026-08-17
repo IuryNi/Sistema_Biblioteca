@@ -6,6 +6,7 @@ Este projeto consiste em um sistema de banco de dados relacional para gerenciame
 ## 🛠️ Tecnologias
 * **SQL** (Linguagem de Consulta Estruturada)
 * **MySQL / MariaDB** (Sistema Gerenciador de Banco de Dados)
+* **Python** (Sicript/controle do sistema)
 
 ## 🗄️ Banco de Dados
 
